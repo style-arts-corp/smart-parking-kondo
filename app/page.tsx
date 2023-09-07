@@ -131,6 +131,8 @@ export default function Home() {
   iHour = Math.floor(i / 60);
   i = i - iHour * 60;
 
+  console.log(hour);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-0">
       <div className="z-12 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">

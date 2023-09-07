@@ -69,41 +69,67 @@ const minuteMenuItems = () => {
   }
   return items;
 };
+// 引数がlet形なら、引数に値を代入すればmainにも反映されますか？
+// => 反映されないですね。ブロックスコープのため
+// ref: https://jsprimer.net/basic/function-scope/
+//
+// const calcPrice = (hikisu1, hikisu2, ...) => {
+// return 0;
+// }
+
+const calcPrice = (
+  diffMinutes: number,
+  currentHour: number,
+  startHour: number
+) => {
+  if (diffMinutes < 30) return 0;
+
+  let money = 700 * Math.floor(diffMinutes / 1440);
+  let a = diffMinutes % 1440;
+  if (a >= 120) money += 700;
+
+  while (a < 120) {
+    a -= 30;
+    money += 150;
+    if (a < 0) break;
+  }
+
+  if (money <= 700 && money > 500) {
+    if (currentHour >= 16 && currentHour <= 8) {
+      if (startHour >= 16 && startHour <= 8) return 500;
+    }
+  }
+  return money;
+};
 
 export default function Home() {
   const [hasStarted, setStarted] = useState(false);
   const [year, setYear] = useState(2023);
-  const [month, setMonth] = useState(1);
-  const [date, setDate] = useState(15);
-  const [hour, setHour] = useState(0);
+  const [month, setMonth] = useState(9);
+  const [date, setDate] = useState(6);
+  const [hour, setHour] = useState(12);
   const [minute, setMinute] = useState(30);
 
-  let StartMinutes = 0, money = 0;
-  const dateNow = dayjs();
+  let StartMinutes = 0,
+    money = 0,
+    iHour = 0,
+    i,
+    nextMoney = 0;
+  const dateNow = dayjs(`2023-09-07 00:00:00`);
   const dateBegin = dayjs(`${year}-${month}-${date} ${hour}:${minute}:00`);
 
   const diffMinutes = dateNow.diff(dateBegin, "minute");
-  console.log(diffMinutes);
   // StartMinutes = console.log(day1.format());
 
+  money = calcPrice(diffMinutes, dateNow.hour(), hour);
 
-  if (diffMinutes < 30) {
-    money = 0;
-  }else{
-  money = 700 * Math.floor(diffMinutes / 1440);
-  let a = diffMinutes % 1440;
-  if(a >120){
-    money = 700;
-  }else{
+  for (i = 0; ; i++) {
+    nextMoney = calcPrice(diffMinutes + i, dateNow.hour(), hour);
+    if (money !== nextMoney) break;
+  }
 
-  while(1){
-    a-= 30;
-
-    money += 150;
-    if(a<0)break;
-  }
-  }
-  }
+  iHour = Math.floor(i / 60);
+  i = i - iHour * 60;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-0">
@@ -127,7 +153,6 @@ export default function Home() {
                   value={year}
                   label="year"
                   onChange={(event) => {
-                    console.log(event.target.value);
                     setYear(Number(event.target.value));
                   }}
                 >
@@ -143,7 +168,6 @@ export default function Home() {
                   value={month}
                   label="month"
                   onChange={(event) => {
-                    console.log(event.target.value);
                     setMonth(Number(event.target.value));
                   }}
                 >
@@ -159,7 +183,6 @@ export default function Home() {
                   value={date}
                   label="day"
                   onChange={(event) => {
-                    console.log(event.target.value);
                     setDate(Number(event.target.value));
                   }}
                 >
@@ -179,7 +202,6 @@ export default function Home() {
                   value={hour}
                   label="hour"
                   onChange={(event) => {
-                    console.log(event.target.value);
                     setHour(Number(event.target.value));
                   }}
                 >
@@ -195,7 +217,6 @@ export default function Home() {
                   value={minute}
                   label="minute"
                   onChange={(event) => {
-                    console.log(event.target.value);
                     setMinute(Number(event.target.value));
                   }}
                 >
@@ -232,16 +253,18 @@ export default function Home() {
             </Stack>
           </div>
           <div>
-            <p className="text-5xl">０００００円</p>
+            <p className="text-5xl">{money}円</p>
           </div>
           <div>
             <p className="text-base">次に料金が上がる時間は</p>
           </div>
           <div>
-            <p className="text-base">００時間後００分後に</p>
+            <p className="text-base">
+              {iHour}時間{i}分後に
+            </p>
           </div>
           <div>
-            <p className="text-base">０００００円になります</p>
+            <p className="text-base">{nextMoney}円になります</p>
           </div>
         </>
       )}

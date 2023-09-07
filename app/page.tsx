@@ -95,8 +95,8 @@ const calcPrice = (
   }
 
   if (money <= 700 && money > 500) {
-    if (currentHour >= 16 && currentHour <= 8) {
-      if (startHour >= 16 && startHour <= 8) return 500;
+    if (currentHour > 16 || currentHour < 8) {
+      if (startHour > 16 || startHour < 8) return 500;
     }
   }
   return money;
@@ -115,7 +115,7 @@ export default function Home() {
     iHour = 0,
     i,
     nextMoney = 0;
-  const dateNow = dayjs(`2023-09-07 00:00:00`);
+  const dateNow = dayjs(`2023-09-07 12:20:00`);
   const dateBegin = dayjs(`${year}-${month}-${date} ${hour}:${minute}:00`);
 
   const diffMinutes = dateNow.diff(dateBegin, "minute");
@@ -124,14 +124,17 @@ export default function Home() {
   money = calcPrice(diffMinutes, dateNow.hour(), hour);
 
   for (i = 0; ; i++) {
-    nextMoney = calcPrice(diffMinutes + i, dateNow.hour(), hour);
+    nextMoney = calcPrice(
+      diffMinutes + i,
+      dateNow.hour() + Math.floor(i / 60),
+      hour
+    );
     if (money !== nextMoney) break;
   }
 
+  if (money == 500) i -= dateNow.minute();
   iHour = Math.floor(i / 60);
   i = i - iHour * 60;
-
-  console.log(hour);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-0">

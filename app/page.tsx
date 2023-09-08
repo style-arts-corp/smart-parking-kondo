@@ -80,6 +80,8 @@ const minuteMenuItems = () => {
 const calcPrice = (diffMinutes: number, dateNow: Dayjs, dateBegin: Dayjs) => {
   if (diffMinutes < 30) return 0;
 
+  diffMinutes = dateNow.diff(dateBegin, "minute");
+
   let money = 700 * Math.floor(diffMinutes / 1440);
   let a = diffMinutes % 1440;
   if (a >= 120) money += 700;
@@ -91,10 +93,10 @@ const calcPrice = (diffMinutes: number, dateNow: Dayjs, dateBegin: Dayjs) => {
   }
 
   if (diffMinutes < 960) {
+    if (dateBegin.hour() >= 8 && dateBegin.hour() < 16) return money;
+    if (dateNow.hour() >= 8 && dateNow.hour() < 16) return money;
     if (dateNow.hour() < 8 || dateBegin.hour() >= 16) return 500;
 
-    //if (dateBegin.hour() >= 8 && dateBegin.hour() < 16) return money;
-    //if (dateNow.hour() >= 8 && dateNow.hour() < 16) return money;
     //if (dateNow.hour() - dateBegin.hour() < 0) return money;
   }
   return money;
@@ -112,6 +114,8 @@ export default function Home() {
     const interval = setInterval(
       () => {
         console.log("This will run every second!");
+        console.log(dateNow.format());
+        console.log(dateNow.add(1, "m").format());
       },
       1000 //1秒ごとに実行
     );
@@ -126,13 +130,13 @@ export default function Home() {
   const dateNow = dayjs();
   const dateBegin = dayjs(`${year}-${month}-${date} ${hour}:${minute}:00`);
 
-  const diffMinutes = dateNow.diff(dateBegin, "minute");
+  let diffMinutes = dateNow.diff(dateBegin, "minute");
   // StartMinutes = console.log(day1.format());
 
   money = calcPrice(diffMinutes, dateNow, dateBegin);
 
   for (i = 0; ; i++) {
-    nextMoney = calcPrice(diffMinutes + i, dateNow, dateBegin);
+    nextMoney = calcPrice(diffMinutes, dateNow.add(i, "m"), dateBegin);
     if (money !== nextMoney) break;
   }
 
@@ -141,7 +145,7 @@ export default function Home() {
   i = i - iHour * 60;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-0">
+    <main className="flex min-h-screen flex-col items-center justify-between p-0 pt-24">
       <div className="z-12 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
         <p className="fixed left-0 top-0 text-4xl flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
           スマートパーキング

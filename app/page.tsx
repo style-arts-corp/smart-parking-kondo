@@ -6,8 +6,8 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Image from "next/image";
-import { useState } from "react";
-import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
+import dayjs, { type Dayjs } from "dayjs";
 
 const yearMenuItems = () => {
   const items = [];
@@ -77,11 +77,7 @@ const minuteMenuItems = () => {
 // return 0;
 // }
 
-const calcPrice = (
-  diffMinutes: number,
-  currentHour: number,
-  startHour: number
-) => {
+const calcPrice = (diffMinutes: number, dateNow: Dayjs, dateBegin: Dayjs) => {
   if (diffMinutes < 30) return 0;
 
   let money = 700 * Math.floor(diffMinutes / 1440);
@@ -94,10 +90,12 @@ const calcPrice = (
     if (a < 0) break;
   }
 
-  if (money <= 700 && money > 500) {
-    if (currentHour > 16 || currentHour < 8) {
-      if (startHour > 16 || startHour < 8) return 500;
-    }
+  if (diffMinutes < 960) {
+    if (dateNow.hour() < 8 || dateBegin.hour() >= 16) return 500;
+
+    //if (dateBegin.hour() >= 8 && dateBegin.hour() < 16) return money;
+    //if (dateNow.hour() >= 8 && dateNow.hour() < 16) return money;
+    //if (dateNow.hour() - dateBegin.hour() < 0) return money;
   }
   return money;
 };
@@ -110,25 +108,31 @@ export default function Home() {
   const [hour, setHour] = useState(12);
   const [minute, setMinute] = useState(30);
 
+  useEffect(() => {
+    const interval = setInterval(
+      () => {
+        console.log("This will run every second!");
+      },
+      1000 //1秒ごとに実行
+    );
+    return () => clearInterval(interval);
+  });
+
   let StartMinutes = 0,
     money = 0,
     iHour = 0,
     i,
     nextMoney = 0;
-  const dateNow = dayjs(`2023-09-07 12:20:00`);
+  const dateNow = dayjs();
   const dateBegin = dayjs(`${year}-${month}-${date} ${hour}:${minute}:00`);
 
   const diffMinutes = dateNow.diff(dateBegin, "minute");
   // StartMinutes = console.log(day1.format());
 
-  money = calcPrice(diffMinutes, dateNow.hour(), hour);
+  money = calcPrice(diffMinutes, dateNow, dateBegin);
 
   for (i = 0; ; i++) {
-    nextMoney = calcPrice(
-      diffMinutes + i,
-      dateNow.hour() + Math.floor(i / 60),
-      hour
-    );
+    nextMoney = calcPrice(diffMinutes + i, dateNow, dateBegin);
     if (money !== nextMoney) break;
   }
 

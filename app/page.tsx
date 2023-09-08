@@ -130,19 +130,21 @@ export default function Home() {
   const dateNow = dayjs();
   const dateBegin = dayjs(`${year}-${month}-${date} ${hour}:${minute}:00`);
 
-  let diffMinutes = dateNow.diff(dateBegin, "minute");
-  // StartMinutes = console.log(day1.format());
+  if (hasStarted === false) {
+    let diffMinutes = dateNow.diff(dateBegin, "minute");
+    // StartMinutes = console.log(day1.format());
 
-  money = calcPrice(diffMinutes, dateNow, dateBegin);
+    money = calcPrice(diffMinutes, dateNow, dateBegin);
 
-  for (i = 0; ; i++) {
-    nextMoney = calcPrice(diffMinutes, dateNow.add(i, "m"), dateBegin);
-    if (money !== nextMoney) break;
+    for (i = 0; ; i++) {
+      nextMoney = calcPrice(diffMinutes, dateNow.add(i, "m"), dateBegin);
+      if (money !== nextMoney) break;
+    }
+
+    if (money == 500) i -= dateNow.minute();
+    iHour = Math.floor(i / 60);
+    i = i - iHour * 60;
   }
-
-  if (money == 500) i -= dateNow.minute();
-  iHour = Math.floor(i / 60);
-  i = i - iHour * 60;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-0 pt-24">

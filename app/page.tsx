@@ -78,9 +78,8 @@ const minuteMenuItems = () => {
 // }
 
 const calcPrice = (diffMinutes: number, dateNow: Dayjs, dateBegin: Dayjs) => {
-  if (diffMinutes < 30) return 0;
-
   diffMinutes = dateNow.diff(dateBegin, "minute");
+  if (diffMinutes < 30) return 0;
 
   let money = 700 * Math.floor(diffMinutes / 1440);
   let a = diffMinutes % 1440;
@@ -130,12 +129,11 @@ export default function Home() {
   const dateNow = dayjs();
   const dateBegin = dayjs(`${year}-${month}-${date} ${hour}:${minute}:00`);
 
-  if (hasStarted === false) {
-    let diffMinutes = dateNow.diff(dateBegin, "minute");
-    // StartMinutes = console.log(day1.format());
+  let diffMinutes = dateNow.diff(dateBegin, "minute");
+  // StartMinutes = console.log(day1.format());
 
-    money = calcPrice(diffMinutes, dateNow, dateBegin);
-
+  money = calcPrice(diffMinutes, dateNow, dateBegin);
+  if (hasStarted === true) {
     for (i = 0; ; i++) {
       nextMoney = calcPrice(diffMinutes, dateNow.add(i, "m"), dateBegin);
       if (money !== nextMoney) break;
